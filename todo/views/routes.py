@@ -2,17 +2,28 @@ from flask import Blueprint, jsonify, request
 
 api = Blueprint("api", __name__, url_prefix="/api/v1")
 
-todos = {
-    1: {
-        "id": 1,
-        "title": "Watch CSSE6400 Lecture",
-        "description": "Watch the CSSE6400 lecture on ECHO360 for week 1",
-        "completed": True,
-        "deadline_at": "2023-02-27T00:00:00",
-        "created_at": "2023-02-20T00:00:00",
-        "updated_at": "2023-02-20T00:00:00"
+# Will be repopulated before each request
+todos = {}
+
+def seed_todos():
+    return {
+        1: {
+            "id": 1,
+            "title": "Watch CSSE6400 Lecture",
+            "description": "Watch the CSSE6400 lecture on ECHO360 for week 1",
+            "completed": True,
+            "deadline_at": "2023-02-27T00:00:00",
+            "created_at": "2023-02-20T00:00:00",
+            "updated_at": "2023-02-20T00:00:00"
+        }
     }
-}
+
+@api.before_request
+def ensure_seeded():
+    # Reset the todos before every request to ensure consistent state
+    global todos
+    todos = seed_todos()
+
 
 @api.route("/health", methods=["GET"])
 def health():
@@ -35,6 +46,9 @@ def get_todo(todo_id):
 @api.route("/todos", methods=["POST"])
 def create_todo():
     data = request.get_json()
+    if not data or "title" not in data:
+        return jsonify({"error": "Title is required"}), 400
+
     todo_id = max(todos.keys(), default=0) + 1
     todo = {
         "id": todo_id,
