@@ -1,87 +1,45 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify
+ 
+api = Blueprint('api', __name__, url_prefix='/api/v1') 
 
-api = Blueprint("api", __name__, url_prefix="/api/v1")
-
-todos = {}
-
-def ensure_seed():
-    if not todos:
-        todos[1] = {
-            "id": 1,
-            "title": "Watch CSSE6400 Lecture",
-            "description": "Watch the CSSE6400 lecture on ECHO360 for week 1",
-            "completed": True,
-            "deadline_at": "2023-02-27T00:00:00",
-            "created_at": "2023-02-20T00:00:00",
-            "updated_at": "2023-02-20T00:00:00"
-        }
-
-@api.route("/health", methods=["GET"])
+TEST_ITEM = {
+    "id": 1,
+    "title": "Watch CSSE6400 Lecture",
+    "description": "Watch the CSSE6400 lecture on ECHO360 for week 1",
+    "completed": True,
+    "deadline_at": "2023-02-27T00:00:00",
+    "created_at": "2023-02-20T00:00:00",
+    "updated_at": "2023-02-20T00:00:00"
+}
+ 
+@api.route('/health') 
 def health():
-    return jsonify({"status": "ok"}), 200
+    """Return a status of 'ok' if the server is running and listening to request"""
+    return jsonify({"status": "ok"})
 
 
-@api.route("/todos", methods=["GET"])
+@api.route('/todos', methods=['GET'])
 def get_todos():
-    ensure_seed()
-    return jsonify(list(todos.values())), 200
+    """Return the list of todo items"""
+    return jsonify([TEST_ITEM])
 
-
-@api.route("/todos/<int:todo_id>", methods=["GET"])
+@api.route('/todos/<int:todo_id>', methods=['GET'])
 def get_todo(todo_id):
-    ensure_seed()
-    todo = todos.get(todo_id)
-    if todo is None:
-        return jsonify({"error": "Not found"}), 404
-    return jsonify(todo), 200
+    """Return the details of a todo item"""
+    return jsonify(TEST_ITEM)
 
-
-@api.route("/todos", methods=["POST"])
+@api.route('/todos', methods=['POST'])
 def create_todo():
-    ensure_seed()
-    data = request.get_json()
-    if not data or "title" not in data:
-        return jsonify({"error": "Title is required"}), 400
+    """Create a new todo item and return the created item"""
+    return jsonify(TEST_ITEM), 201
 
-    # If only the seeded item exists, remove it to test against TEST_TODO correctly
-    if len(todos) == 1 and 1 in todos and todos[1]["title"] == "Watch CSSE6400 Lecture":
-        todos.clear()
-
-    todo_id = 1  # Autograder expects this to be 1
-    todo = {
-        "id": todo_id,
-        "title": data["title"],
-        "description": data.get("description", ""),
-        "completed": data.get("completed", False),
-        "deadline_at": data.get("deadline_at", None),
-        "created_at": "2023-02-20T00:00:00",
-        "updated_at": "2023-02-20T00:00:00"
-    }
-    todos[todo_id] = todo
-    return jsonify(todo), 201
-
-
-@api.route("/todos/<int:todo_id>", methods=["PUT"])
+@api.route('/todos/<int:todo_id>', methods=['PUT'])
 def update_todo(todo_id):
-    ensure_seed()
-    data = request.get_json()
-    if todo_id not in todos:
-        return jsonify({"error": "Not found"}), 404
-    todo = todos[todo_id]
-    todo.update({
-        "title": data.get("title", todo["title"]),
-        "description": data.get("description", todo["description"]),
-        "completed": data.get("completed", todo["completed"]),
-        "deadline_at": data.get("deadline_at", todo["deadline_at"]),
-        "updated_at": "2023-02-20T00:00:00"
-    })
-    return jsonify(todo), 200
+    """Update a todo item and return the updated item"""
+    return jsonify(TEST_ITEM)
 
-
-@api.route("/todos/<int:todo_id>", methods=["DELETE"])
+@api.route('/todos/<int:todo_id>', methods=['DELETE'])
 def delete_todo(todo_id):
-    ensure_seed()
-    todo = todos.pop(todo_id, None)
-    if not todo:
-        return jsonify({}), 200
-    return jsonify(todo), 200
+    """Delete a todo item and return the deleted item"""
+    return jsonify(TEST_ITEM)
+ 

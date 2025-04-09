@@ -1,4 +1,4 @@
-@baseUrl = http://localhost:5000
+@baseUrl = http://localhost:6400
 
 ### Health
 GET {{baseUrl}}/api/v1/health
@@ -14,8 +14,9 @@ POST {{baseUrl}}/api/v1/todos
 Content-Type: application/json
 
 {
-"title": "An example Todo",
-"description": "This is an example todo"
+    "title": "Test Todo",
+    "description": "This is a test todo",
+    "completed": false
 }
 
 ### Update a Todo
@@ -23,7 +24,7 @@ PUT {{baseUrl}}/api/v1/todos/1
 Content-Type: application/json
 
 {
-"title": "updated title"
+    "title": "updated title"
 }
 
 ### Delete a Todo
